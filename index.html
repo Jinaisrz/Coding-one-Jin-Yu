@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <script>window.onerror = function(error, url, line) {parent.postMessage(["console", "❌ -- [ERROR] -- ❌ -- ⚠️ " + error], "*")};var cl = console.log;console.log = function () {var msg = [...arguments].join();parent.postMessage(["console", msg], "*");  }  </script><script crossorigin src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.min.js">
+</script>
+   <script src = "https://mimicproject.com/libs/maximilian.js">
+</script>    <script crossorigin src = "orbitControls.js">
+</script>
+  <script crossorigin src="./dist/OBJLoader. js">
+</script>
+	<style>
+		body {
+			margin: 0px;
+			background-color: #ff0000;
+			overflow: hidden;
+		}
+	</style>
+</head>
+     - Please move your mouse -
+  
+<body>
+	<script id="vertexShader" type="x-shader/x-vertex">
+		void main() { gl_Position = vec4( position, 1.0 ); }
+
+</script>
+	<script id="fragmentShader" type="x-shader/x-fragment">
+#extension GL_OES_standard_derivatives : enable
+precision highp float;
+uniform float time;
+uniform vec2 mouse, resolution;
+
+
+vec2 rot(vec2 p,float a){
+	float s=sin(a), c=cos(a); 
+	return vec2(p.x*c+p.y*s,p.x*s-p.y*c);
+}
+
+void main( void ) {
+	vec2 position = ( gl_FragCoord.xy / resolution.xy ) + mouse;
+	
+	position*=10.*mouse.y;
+	vec2 frp = fract(position);
+	vec2 flp = floor(position);
+	float d=(length(frp-0.5));
+	position= flp+rot(frp-0.0,-time);
+
+	float color = 10.0;
+    color - cos( position.x * cos( time / 2.0 ) * 9.0 ) + tan( position.y * tan( time / 20.0 ) * 99.00 );
+	color - cos( position.x * cos( time / 2.0 ) * 9.0 ) + tan( position.y * tan( time / 20.0 ) * 99.00 );
+	color = sin( position.y * sin( time / 10.0 ) * 40.0 ) + sin( position.x * sin( time / 29.0 ) * 9.0);
+    color -= sin( position.y * sin( time / 10.0 ) * 40.0 ) + sin( position.x * sin( time / 29.0 ) * 9.0);
+	color -= tan( position.x * sin( time / 5.0 ) * 10.0 ) + sin( position.y * sin( time / 9.9 ) * 1.9 );
+	color *= tan( time / 10.0 ) * 1.0;
+
+	gl_FragColor = vec4( vec3( tan(color*0.1 - time), tan(color * 0.12 + time), cos( color*100.0 - time ) * -0.2 ), 1.0 );
+
+      }
+
+</script>
+  
+  
+  <script>
+  var maximJs = maximilian();	
+  var maxiAudio = new maximJs.maxiAudio();	
+  var kick = new maximJs.maxiSample();
+  var snare = new maximJs.maxiSample();
+  var hat = new maximJs.maxiSample();
+  var clap = new maximJs.maxiSample(); 
+  var elec = new maximJs.maxiSample();
+  var myClock = new maximJs.maxiClock();
+  var myOsc = new maximJs.maxiOsc();
+  var kickGain = 5;
+  maxiAudio.init();
+  maxiAudio.loadSample('冰冷带有至于色彩的光.mp3', kick);
+  maxiAudio.loadSample('神圣的回复魔法.mp3', snare);	
+  maxiAudio.loadSample('黑暗光魔法.mp3', hat);  
+  maxiAudio.loadSample('饱满圣光.mp3', clap);
+  
+  var myTempo = 10;
+  var ticks = 10;
+  myClock.setTempo(myTempo);
+  myClock.setTicksPerBeat(ticks);
+
+  maxiAudio.play = function() {
+  myClock.ticker();
+    
+  if(myClock.ticker && myClock.playHead&8 ===2 ){
+      kick.trigger();
+      kickGain = 20;
+    }
+  if(myClock.tricker && myClock.playHead&2 == 1){
+      snare.trigger();
+    }
+  if(myClock.tricker && myClock.playHead&2 == 5){
+      hat.trigger();
+    } 
+  if(myClock.tricker && myClock.playHead&8 == 2){
+      clap.trigger();
+    }
+ 
+ //============================================= an attempt of mouse move controlling voice
+    var out = kickGain*kick.play(myOsc.coswave(100)) + snare.play(myOsc.coswave(1)) + hat.play() + clap.play();
+    
+   return out * 2;
+  }
+  
+</script>
+  
+  
+	<script>
+//3D图形====================================================
+		var pixel_resolution =1;
+		var container, stats;
+		var camera, scene, renderer;
+		var uniforms;
+		init();
+		animate();
+		function init() {
+camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
+			camera.position.z = 10;
+            camera.position.x = 4;
+            camera.position.set = (10,2,11);
+			scene = new THREE.Scene();
+
+          var geometry = new THREE.PlaneBufferGeometry(10, 15);
+          
+//=====================================================   
+// 3D graphics attempt
+/*var planeGeometry = new THREE.PlaneGeometry(20,20);
+          //这个部分可能需要重新加一个，例如加一个planeGeometry = new THREE.PlaneGeometry.
+var myTextureLoader = new THREE.TextureLoader();
+var myTexture = myTextureLoader.load('simle.jpg');
+var planeMaterial = new THREE.MeshLambertMaterial({map: myTexture});
+var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+plane.rotation.x = Math.PI / 2;
+plane.position.set(1,2, 0);
+scene.add(plane);
+var light = new THREE.DirectionalLight("rgb(255,255,255)");
+scene.add(light);*/
+//=====================================================  
+          
+uniforms = { time: { type: 'v', value: 100.0 }, resolution: { type: 'v2', value: new THREE.Vector2() }, mouse: {type: "v2", value: new THREE.Vector2()}};
+var material = new THREE.ShaderMaterial({ uniforms: uniforms, vertexShader: document.getElementById('vertexShader').textContent, fragmentShader: document.getElementById('fragmentShader').textContent });
+			var mesh = new THREE.Mesh(geometry, material);
+			scene.add(mesh);
+			renderer = new THREE.WebGLRenderer();
+			//Hack here to change resolution 
+			renderer.setPixelRatio(window.devicePixelRatio / pixel_resolution);
+			document.body.appendChild(renderer.domElement);
+			onWindowResize();
+			window.addEventListener('s', onWindowResize, true);
+	        window.addEventListener('mousemove', onMouseMove, true);
+
+		}
+		function onWindowResize(event) {
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			uniforms.resolution.value.x = renderer.domElement.width;
+			uniforms.resolution.value.y = renderer.domElement.height;
+
+		}
+		function animate() {
+			requestAnimationFrame(animate);
+			render();
+		}
+		function onMouseMove( event ) {
+        	uniforms.mouse.value.x = 1 * ( 1-(event.clientX) / window.innerWidth );
+ 	        uniforms.mouse.value.y = 1 * ( 1-(event.clientY) / window.innerHeight);
+        }
+		function render() {
+			uniforms.time.value += 0.0053;
+			renderer.render(scene, camera);
+		}
+
+</script>
+</body>
+</html>
